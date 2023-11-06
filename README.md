@@ -290,7 +290,7 @@ terraform destroy This command is used to  destroy t:whe infrastructure created 
 
 ![image](https://github.com/nikhilk1699/snipe_shell/assets/109533285/76bd4b75-8c14-436d-943d-c833551e5dc0)
 
-
+![image](https://github.com/nikhilk1699/snipe_shell/assets/109533285/dea4960b-4cb2-4432-b78d-41d0f71b8a6b)
 
 
 
