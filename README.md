@@ -124,6 +124,7 @@ show_message "Snipe-IT setup complete!"
 
 # Create main.tf file for run terraform code
 
+
 ```
 terraform {
   required_providers {
