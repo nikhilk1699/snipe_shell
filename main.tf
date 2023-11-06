@@ -97,7 +97,7 @@ resource "azurerm_linux_virtual_machine" "linux_vm" {
   provisioner "remote-exec" {
     inline = [
       "ls -lh",
-      "chmod 700 ./package.sh",
+      "sudo chmod 700 ./package.sh",
       "./package.sh",
     ]
   }
