@@ -12,7 +12,7 @@ provider "azurerm" {
 }
 
 locals {
-  resource_group = "snipee_rp"
+  resource_group = "snipee_rg"
   location       = "North Europe"
 }
 
@@ -65,6 +65,25 @@ resource "azurerm_network_interface" "snipee_interface" {
   }
 }
 
+resource "azurerm_network_security_group" "snipee_nsg" {
+  name                = "snipee-SecurityGroup1"
+  location            = local.location
+  resource_group_name = azurerm_resource_group.snipee_rg.name
+
+  security_rule {
+    name                       = "all-traffic"
+    priority                   = 100
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "*"
+    source_port_range          = "*"
+    destination_port_range     = "*"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+
+}
+
 resource "azurerm_linux_virtual_machine" "linux_vm" {
   name                = "linuxvm"
   resource_group_name = local.resource_group
@@ -97,7 +116,7 @@ resource "azurerm_linux_virtual_machine" "linux_vm" {
   provisioner "remote-exec" {
     inline = [
       "ls -lh",
-      "sudo chmod 700 ./package.sh",
+      "chmod 777 ./package.sh",
       "./package.sh",
     ]
   }
