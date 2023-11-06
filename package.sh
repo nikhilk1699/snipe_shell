@@ -21,15 +21,18 @@ show_message "Restart Apache"
 sudo systemctl restart apache2
 
 show_message "Install MariaDB and secure the installation"
-sudo  apt install mariadb-server mariadb-client -y
+sudo apt install mariadb-server mariadb-client -y
 sudo systemctl start mariadb
 sudo systemctl enable mariadb
+sudo mysql_secure_installation <<EOF
 
-show_message "Configure MariaDB"
-sudo mysql -e  <<EOF
-ALTER USER 'root'@'localhost' IDENTIFIED WITH 'mysql_native_password' BY 'snipe1';
-DELETE FROM mysql.user WHERE User='';
-FLUSH PRIVILEGES;
+y
+admin
+admin
+y
+y
+y
+y
 EOF
 
 show_message "Install PHP and necessary extensions"
@@ -51,7 +54,7 @@ FLUSH PRIVILEGES;
 EOF
 
 GIT_USERNAME="nikhilk1669"
-GIT_PASSWORD="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"
+GIT_PASSWORD="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"
 REPO_URL="https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/PearlThoughtsInternship/snipe-it.git"
 
 show_message "Clone the repository and set up Snipe-IT"
@@ -70,6 +73,8 @@ DB_PASSWORD=admin
 EOL
 
 show_message "Set permissions and install dependencies"
+# Before running the Composer commands, set the COMPOSER_ALLOW_SUPERUSER variable
+export COMPOSER_ALLOW_SUPERUSER=1
 sudo chown -R www-data:www-data /var/www/snipe-it
 sudo chmod -R 755 /var/www/snipe-it
 yes | sudo composer update --no-plugins --no-scripts
@@ -86,8 +91,7 @@ content="<VirtualHost *:80>
     <Directory /var/www/snipe-it/public>
         Options Indexes FollowSymLinks MultiViews
         AllowOverride All
-        Order allow,deny
-        allow from all
+        Require all granted
     </Directory>
 </VirtualHost>"
 
@@ -105,6 +109,3 @@ sudo chmod -R 755 /var/www/snipe-it/storage
 sudo systemctl restart apache2
 
 show_message "Snipe-IT setup complete!"
-
-
-
