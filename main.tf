@@ -83,6 +83,10 @@ resource "azurerm_network_security_group" "snipee_nsg" {
   }
 
 }
+resource "azurerm_subnet_network_security_group_association" "snipee_nsga" {
+  subnet_id                 = azurerm_subnet.SubnetA.id
+  network_security_group_id = azurerm_network_security_group.snipee_nsg.id
+}
 
 resource "azurerm_linux_virtual_machine" "linux_vm" {
   name                = "linuxvm"
