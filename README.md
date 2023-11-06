@@ -219,9 +219,30 @@ resource "azurerm_network_interface" "snipee_interface" {
     public_ip_address_id          = azurerm_public_ip.snipee_public_ip.id
   }
 }
-
 ```
 ### This resource defines an Azure network interface card (NIC) associated with a subnet and public IP address. It's named snipee-interface.
+
+```
+resource "azurerm_network_security_group" "snipee_nsg" {
+  name                = "snipee-SecurityGroup1"
+  location            = local.location
+  resource_group_name = azurerm_resource_group.snipee_rg.name
+
+  security_rule {
+    name                       = "all-traffic"
+    priority                   = 100
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "*"
+    source_port_range          = "*"
+    destination_port_range     = "*"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+
+}
+```
+### resource creates a network security group with a rule allowing all inbound traffic.
 
 ```
 resource "azurerm_linux_virtual_machine" "linux_vm" {
