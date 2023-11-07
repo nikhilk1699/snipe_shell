@@ -5,7 +5,6 @@ show_message() {
   echo "$1"
   echo "-------------------------------------------------------------"
 }
-
 show_message "Update package lists and install necessary packages"
 sudo apt update
 sudo apt install apache2 -y
@@ -24,18 +23,9 @@ show_message "Install MariaDB and secure the installation"
 sudo apt install mariadb-server mariadb-client -y
 sudo systemctl start mariadb
 sudo systemctl enable mariadb
-sudo mysql_secure_installation <<EOF
-
-y
-admin
-admin
-y
-y
-y
-y
-EOF
 
 show_message "Install PHP and necessary extensions"
+sudo apt update
 sudo apt install php php-cli php-fpm php-json php-common php-mysql php-zip php-gd php-mbstring php-curl php-xml php-pear php-bcmath -y
 
 show_message "Additional PHP extensions"
@@ -54,7 +44,7 @@ FLUSH PRIVILEGES;
 EOF
 
 GIT_USERNAME="nikhilk1669"
-GIT_PASSWORD="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"
+GIT_PASSWORD="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"
 REPO_URL="https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/PearlThoughtsInternship/snipe-it.git"
 
 show_message "Clone the repository and set up Snipe-IT"
@@ -63,23 +53,19 @@ cd /var/www/ || exit 1
 git clone $REPO_URL
 cd snipe-it || exit 1
 cp .env.example .env
-cat <<EOL > .env
-APP_DEBUG=false
-APP_KEY=
-APP_URL=
-DB_DATABASE=snipeitdb
-DB_USERNAME=snipeituser
-DB_PASSWORD=admin
-EOL
+sudo sed -i "s/DB_DATABASE=.*/DB_DATABASE=snipeit/" .env
+sudo sed -i "s/DB_USERNAME=.*/DB_USERNAME=snipeituser/" .env
+sudo sed -i "s/DB_PASSWORD=.*/DB_PASSWORD=admin/" .env
+sudo sed -i "s/APP_URL=.*/APP_URL=/" .env
 
 show_message "Set permissions and install dependencies"
-# Before running the Composer commands, set the COMPOSER_ALLOW_SUPERUSER variable
-export COMPOSER_ALLOW_SUPERUSER=1
+sudo apt update
 sudo chown -R www-data:www-data /var/www/snipe-it
 sudo chmod -R 755 /var/www/snipe-it
 yes | sudo composer update --no-plugins --no-scripts
 yes | sudo composer install --no-dev --prefer-source --no-plugins --no-scripts
-yes | php artisan key:generate
+yes | sudo php artisan key:generate
+yes | sudo php artisan migrate
 
 show_message "Configure Apache"
 sudo a2dissite 000-default.conf
