@@ -22,6 +22,12 @@ jobs:
         run: |
           # Verify Azure CLI installation
           az --version
+          
+      - name: Azure Login
+        run: |
+          # Log in to Azure
+          az login
+
       - name: Download and Install Terraform
         run: |
           wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
