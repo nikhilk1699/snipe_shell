@@ -30,16 +30,11 @@ jobs:
           # Verify Terraform installation
           terraform --version
 
-      - name: Terraform Init
+      - name: Debug Information
         run: |
-          cd $GITHUB_WORKSPACE
-          cd snipe_shell
-          terraform init
-
-      - name: Terraform Apply
-        run: |
-          cd $GITHUB_WORKSPACE
-          cd snipe_shell
-          terraform apply -auto-approve
+         pwd
+         ls -l
+         ls -l $GITHUB_WORKSPACE
+         ls -l $GITHUB_WORKSPACE/snipe_shell
 
 
