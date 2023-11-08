@@ -5,6 +5,10 @@ on:
     branches:
       - main
 
+# Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+defaults:
+  run:
+    shell: bash
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -22,29 +26,23 @@ jobs:
         run: |
           # Verify Azure CLI installation
           az --version
+      - name: azure portal login using azure cli
+        run : az login
           
-      - name: Azure Login
-        run: |
-          # Log in to Azure
-          az login
-
-      - name: Download and Install Terraform
-        run: |
-          wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
-          echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
-          sudo apt update && sudo apt install terraform
-          # Verify Terraform installation
-          terraform --version
-
+      - name: setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+        
       - name: Terraform Init
         run: |
           terraform init
 
-      - name: Terraform Init
+      - name: Terraform plan
         run: |
           terraform plan
 
-      - name: Terraform Init
+      - name: Terraform apply
         run: |
           terraform apply -auto-approve
 
