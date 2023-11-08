@@ -13,6 +13,13 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v2
 
-      - name: Print a message
-        run: echo "Hello, GitHub Actions!"
+      - name: Install Azure CLI
+        run: |
+          # Install the Azure CLI
+          curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+
+      - name: Verify Azure CLI installation
+        run: |
+          # Verify Azure CLI installation
+          az --version
 
