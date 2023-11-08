@@ -32,12 +32,12 @@ jobs:
 
       - name: Terraform Init
         run: |
-          cd   snipe_shell
+          cd   $GITHUB_WORKSPACE/snipe_shell
           terraform init
 
       - name: Terraform Apply
         run: |
-          cd snipe_shell
+          cd $GITHUB_WORKSPACE/snipe_shell
           terraform apply -auto-approve
 
 
