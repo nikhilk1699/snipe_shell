@@ -26,9 +26,11 @@ jobs:
         run: |
           # Verify Azure CLI installation
           az --version
-      - name: azure portal login using azure cli
-        run : az login
-          
+      - name: Login via Az module
+        uses: azure/login@v1
+        with:
+         creds: ${{secrets.AZURE_WEB_PORTAL}} 
+         
       - name: setup Terraform
         uses: hashicorp/setup-terraform@v2
         with:
