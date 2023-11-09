@@ -8,6 +8,14 @@ show_message() {
   echo "$1"
   echo "-------------------------------------------------------------"
 }
+
+show_message "db_password"
+MYSQL_ROOT_PASSWORD="1"
+show_message "Define Snipe-IT database credentials"
+DB_NAME="snipeit"
+DB_USER="snipeituser"
+DB_PASSWORD="admin"
+
 show_message "Update package lists and install necessary packages"
 sudo apt update
 sudo apt install apache2 -y
@@ -34,33 +42,24 @@ sudo apt install php php-cli php-fpm php-json php-common php-mysql php-zip php-g
 show_message "Additional PHP extensions"
 sudo apt install php-bz2 php-intl php-ffi php-fileinfo php-ftp php-iconv php-json php-mysqli php-phar php-posix php-readline php-shmop php-sockets php-sysvmsg php-sysvsem php-sysvshm php-tokenizer php-curl php-ldap -y
 
-show_message "Install Composer"
+show_message "Download and move Composer"
 curl -sS https://getcomposer.org/installer | php
 sudo mv composer.phar /usr/local/bin/composer
 
 show_message "Create a MySQL database and user for Snipe-IT"
-sudo mysql <<EOF
-CREATE DATABASE snipeitdb;
-CREATE USER snipeituser@localhost IDENTIFIED BY 'admin';
-GRANT ALL PRIVILEGES ON snipeitdb.* TO snipeituser@localhost;
-FLUSH PRIVILEGES;
-EOF
+sudo mysql -u root -p"$MYSQL_ROOT_PASSWORD" -e "CREATE DATABASE $DB_NAME;"
+sudo mysql -u root -p"$MYSQL_ROOT_PASSWORD" -e "CREATE USER '$DB_USER'@'localhost' IDENTIFIED BY '$DB_PASSWORD';"
+sudo mysql -u root -p"$MYSQL_ROOT_PASSWORD" -e "GRANT ALL PRIVILEGES ON $DB_NAME.* TO '$DB_USER'@'localhost';"
+sudo mysql -u root -p"$MYSQL_ROOT_PASSWORD" -e "FLUSH PRIVILEGES;"
 
-GIT_USERNAME="nikhilk1669"
-GIT_PASSWORD="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"
-REPO_URL="https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/PearlThoughtsInternship/snipe-it.git"
-
-show_message "Clone the repository and set up Snipe-IT"
-sudo chown -R linuxusr:linuxusr /var/www/
-cd /var/www/ || exit 1
-git clone $REPO_URL
-cd snipe-it || exit 1
-cp .env.example .env
-sudo sed -i "s/DB_DATABASE=.*/DB_DATABASE=snipeit/" .env
-sudo sed -i "s/DB_USERNAME=.*/DB_USERNAME=snipeituser/" .env
-sudo sed -i "s/DB_PASSWORD=.*/DB_PASSWORD=admin/" .env
-sudo sed -i "s/APP_URL=.*/APP_URL=/" .env
-
+show_message "Clone the repository into /var/www directory and set up Snipe-IT .env file"
+cd /var/www/
+sudo git clone https://github.com/snipe/snipe-it
+cd snipe-it
+sudo cp .env.example .env
+sudo sed -i "s/DB_DATABASE=.*/DB_DATABASE=$DB_NAME/" .env
+sudo sed -i "s/DB_USERNAME=.*/DB_USERNAME=$DB_USER/" .env
+sudo sed -i "s/DB_PASSWORD=.*/DB_PASSWORD=$DB_PASSWORD/" .env
 show_message "Set permissions and install dependencies"
 sudo apt update
 sudo chown -R www-data:www-data /var/www/snipe-it
@@ -68,7 +67,6 @@ sudo chmod -R 755 /var/www/snipe-it
 yes | sudo composer update --no-plugins --no-scripts
 yes | sudo composer install --no-dev --prefer-source --no-plugins --no-scripts
 yes | sudo php artisan key:generate
-yes | sudo php artisan migrate
 
 show_message "Configure Apache"
 sudo a2dissite 000-default.conf
@@ -98,25 +96,26 @@ sudo chmod -R 755 /var/www/snipe-it/storage
 sudo systemctl restart apache2
 
 show_message "Snipe-IT setup complete!"
-
-
 ```
-## explaination of script
-
-### show_message() function: This function is defined to display a message surrounded by a line of hyphens.
-### It then starts and enables the Apache web server using systemctl. The script enables the Apache rewrite module using a2enmod. Apache is restarted to apply the changes.
-### The script proceeds to install MariaDB (a relational database) and secure the installation. It starts and enables the MariaDB service. It then configures MariaDB by setting a root user password and removing empty user entries. PHP and various PHP extensions are installed to support Snipe-IT. Composer, a PHP package manager, is installed.A MySQL database and user for Snipe-IT are created, and privileges are granted to the user for the database.
-### The script defines variables for a GitHub repository URL, including a username and password for authentication.
-
-### The repository is cloned, and Snipe-IT is set up in the /var/www/snipe-it directory. The script sets permissions and installs dependencies for the Snipe-IT installation, generates an application key, and configures Apache.
-
-### It defines the content for an Apache configuration file (snipe-it.conf) in a variable. The content is added to the snipe-it.conf file, which defines the virtual host for the Snipe-IT website.
-### Apache is restarted to apply the configuration changes, and the virtual host is enabled. Permissions are adjusted for the storage directory in the Snipe-IT installation, and Apache is restarted once more. A final message is displayed to indicate that the Snipe-IT setup is complete.
-### Overall, this script automates the installation and configuration of the Apache web server, MariaDB, PHP, Composer, and Snipe-IT on a Linux system. It also configures Apache to serve the Snipe-IT application. 
-
+## Above Bash script used to automate the setup of the Snipe-IT asset management software on an Ubuntu server. 
+- show_message(): This function is defined to display messages
+- MYSQL_ROOT_PASSWORD: This is the root password for MySQL
+- database credentials: The script defines the database name (DB_NAME), the database user (DB_USER), and the user's password (DB_PASSWORD). The APP_URL is also set here.
+- Updating package lists and installs Apache web server (apache2).The Apache web server is started and set to start on boot.
+- Apache rewrite module: The mod_rewrite module is enabled for Apache, which is often needed for web applications.
+- Installed MariaDB and securing the installation: MariaDB is installed, started, and set to start on boot.
+- Installed PHP and necessary extensions:installs PHP and various PHP extensions that are required for Snipe-IT to function properly.
+- Downloading and moving Composer: Composer, a PHP dependency manager, is downloaded and moved to the system's bin directory for easy access.
+- Creating a MySQL database and user for Snipe-IT: A MySQL database, user, and privileges are set up for Snipe-IT.
+- Cloning the Snipe-IT repository: The Snipe-IT repository is cloned from GitHub into the /var/www directory.
+- .env file: The .env configuration file for Snipe-IT is created, and values for the database and other settings are set within this file.
+- permissions and installing dependencies: Permissions are set for the Snipe-IT directory, and the necessary dependencies are installed using Composer. The php artisan key:generate command is used to generate an application key.
+- Configuring Apache: The default Apache configuration file is disabled (a2dissite 000-default.conf).
+- Defining the content for the snipe-it.conf file: The Apache virtual host configuration for Snipe-IT is defined and stored in the $content variable.
+- Adding the content to the snipe-it.conf file: The contents of $content are added to the Apache configuration file located at /etc/apache2/sites-available/snipe-it.conf.
+- Restarting Apache: Apache is restarted to apply the new configuration.
+  
 # Create main.tf file for run terraform code
-
-
 ```
 terraform {
   required_providers {
@@ -231,26 +230,20 @@ resource "azurerm_network_security_group" "snipee_nsg" {
     source_address_prefix      = "*"
     destination_address_prefix = "*"
   }
-
 }
 ```
 ### resource creates a network security group with a rule allowing all inbound traffic.
 
 ```
-resource "azurerm_subnet_network_security_group_association" "snipee_nsga" {
-  subnet_id                 = azurerm_subnet.SubnetA.id
-  network_security_group_id = azurerm_network_security_group.snipee_nsg.id
-}
-```
-##
-```
 resource "azurerm_linux_virtual_machine" "linux_vm" {
   name                = "linuxvm"
   resource_group_name = local.resource_group
   location            = local.location
-  size                = "Standard_D2s_v3"
+  size                = "Standard_B1s"
   admin_username      = "linuxusr"
-  network_interface_ids = [azurerm_network_interface.snipee_interface.id]
+  network_interface_ids = [
+    azurerm_network_interface.snipee_interface.id,
+  ]
   admin_ssh_key {
     username   = "linuxusr"
     public_key = tls_private_key.linux_key.public_key_openssh
@@ -261,30 +254,35 @@ resource "azurerm_linux_virtual_machine" "linux_vm" {
   }
   source_image_reference {
     publisher = "Canonical"
-    offer     = "UbuntuServer"
-    sku       = "18.04-LTS"
+    offer     = "0001-com-ubuntu-server-jammy"
+    sku       = "22_04-lts"
     version   = "latest"
   }
+
   provisioner "file" {
     source      = "package.sh"
     destination = "/home/linuxusr/package.sh"
   }
+
   provisioner "remote-exec" {
     inline = [
       "ls -lh",
-      "sudo chmod 700 ./package.sh",
+      "chmod 777 ./package.sh",
       "./package.sh",
     ]
   }
+
   provisioner "local-exec" {
     command = "echo ${azurerm_public_ip.snipee_public_ip.ip_address} >> local.txt"
   }
+
   connection {
     type        = "ssh"
     user        = "linuxusr"
     host        = azurerm_public_ip.snipee_public_ip.ip_address
     private_key = file(local_file.linuxkey.filename)
   }
+
   depends_on = [
     azurerm_network_interface.snipee_interface,
     tls_private_key.linux_key,
@@ -292,7 +290,7 @@ resource "azurerm_linux_virtual_machine" "linux_vm" {
 }
 ```
 
-### This resource defines an Azure Linux virtual machine with various settings, including the VM size, admin username, SSH key, OS disk properties, and provisioning steps. It also sets up a connection to the VM using the SSH private key, runs some provisioner steps, and depends on other resources like the network interface and private key.
+### This resource defines an Azure Linux virtual machine with various settings, including the VM size, run pacakage.sh script, admin username, SSH key, OS disk properties, and provisioning steps. It also sets up a connection to the VM using the SSH private key, runs some provisioner steps, and depends on other resources like the network interface and private key.
 
 
 ## Run this terraform script, open terminal run following cmd:
