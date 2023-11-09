@@ -5,6 +5,15 @@ show_message() {
   echo "$1"
   echo "-------------------------------------------------------------"
 }
+
+show_message "db_password"
+MYSQL_ROOT_PASSWORD="1"
+show_message "Define Snipe-IT database credentials"
+DB_NAME="snipeit"
+DB_USER="snipeituser"
+DB_PASSWORD="admin"
+APP_URL="azurerm_public_ip.snipee_public_ip.ip_address}"
+
 show_message "Update package lists and install necessary packages"
 sudo apt update
 sudo apt install apache2 -y
@@ -31,32 +40,25 @@ sudo apt install php php-cli php-fpm php-json php-common php-mysql php-zip php-g
 show_message "Additional PHP extensions"
 sudo apt install php-bz2 php-intl php-ffi php-fileinfo php-ftp php-iconv php-json php-mysqli php-phar php-posix php-readline php-shmop php-sockets php-sysvmsg php-sysvsem php-sysvshm php-tokenizer php-curl php-ldap -y
 
-show_message "Install Composer"
+show_message "Download and move Composer"
 curl -sS https://getcomposer.org/installer | php
 sudo mv composer.phar /usr/local/bin/composer
 
 show_message "Create a MySQL database and user for Snipe-IT"
-sudo mysql <<EOF
-CREATE DATABASE snipeitdb;
-CREATE USER snipeituser@localhost IDENTIFIED BY 'admin';
-GRANT ALL PRIVILEGES ON snipeitdb.* TO snipeituser@localhost;
-FLUSH PRIVILEGES;
-EOF
+sudo mysql -u root -p"$MYSQL_ROOT_PASSWORD" -e "CREATE DATABASE $DB_NAME;"
+sudo mysql -u root -p"$MYSQL_ROOT_PASSWORD" -e "CREATE USER '$DB_USER'@'localhost' IDENTIFIED BY '$DB_PASSWORD';"
+sudo mysql -u root -p"$MYSQL_ROOT_PASSWORD" -e "GRANT ALL PRIVILEGES ON $DB_NAME.* TO '$DB_USER'@'localhost';"
+sudo mysql -u root -p"$MYSQL_ROOT_PASSWORD" -e "FLUSH PRIVILEGES;"
 
-GIT_USERNAME="nikhilk1669"
-GIT_PASSWORD="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"
-REPO_URL="https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/PearlThoughtsInternship/snipe-it.git"
-
-show_message "Clone the repository and set up Snipe-IT"
-sudo chown -R linuxusr:linuxusr /var/www/
-cd /var/www/ || exit 1
-git clone $REPO_URL
-cd snipe-it || exit 1
-cp .env.example .env
-sudo sed -i "s/DB_DATABASE=.*/DB_DATABASE=snipeit/" .env
-sudo sed -i "s/DB_USERNAME=.*/DB_USERNAME=snipeituser/" .env
-sudo sed -i "s/DB_PASSWORD=.*/DB_PASSWORD=admin/" .env
-sudo sed -i "s/APP_URL=.*/APP_URL=/" .env
+show_message "Clone the repository into /var/www directory and set up Snipe-IT .env file"
+cd /var/www/
+sudo git clone https://github.com/snipe/snipe-it
+cd snipe-it
+sudo cp .env.example .env
+sudo sed -i "s/DB_DATABASE=.*/DB_DATABASE=$DB_NAME/" .env
+sudo sed -i "s/DB_USERNAME=.*/DB_USERNAME=$DB_USER/" .env
+sudo sed -i "s/DB_PASSWORD=.*/DB_PASSWORD=$DB_PASSWORD/" .env
+sudo sed -i "s/APP_URL=.*/APP_URL=$APP_URL/" .env
 
 show_message "Set permissions and install dependencies"
 sudo apt update
@@ -65,7 +67,6 @@ sudo chmod -R 755 /var/www/snipe-it
 yes | sudo composer update --no-plugins --no-scripts
 yes | sudo composer install --no-dev --prefer-source --no-plugins --no-scripts
 yes | sudo php artisan key:generate
-yes | sudo php artisan migrate
 
 show_message "Configure Apache"
 sudo a2dissite 000-default.conf
