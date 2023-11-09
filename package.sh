@@ -12,7 +12,7 @@ show_message "Define Snipe-IT database credentials"
 DB_NAME="snipeit"
 DB_USER="snipeituser"
 DB_PASSWORD="admin"
-APP_URL="azurerm_public_ip.snipee_public_ip.ip_address}"
+
 
 show_message "Update package lists and install necessary packages"
 sudo apt update
@@ -58,7 +58,7 @@ sudo cp .env.example .env
 sudo sed -i "s/DB_DATABASE=.*/DB_DATABASE=$DB_NAME/" .env
 sudo sed -i "s/DB_USERNAME=.*/DB_USERNAME=$DB_USER/" .env
 sudo sed -i "s/DB_PASSWORD=.*/DB_PASSWORD=$DB_PASSWORD/" .env
-sudo sed -i "s/APP_URL=.*/APP_URL=$APP_URL/" .env
+
 
 show_message "Set permissions and install dependencies"
 sudo apt update
