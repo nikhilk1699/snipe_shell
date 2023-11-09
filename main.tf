@@ -92,7 +92,7 @@ resource "azurerm_linux_virtual_machine" "linux_vm" {
   name                = "linuxvm"
   resource_group_name = local.resource_group
   location            = local.location
-  size                = "Standard_D2s_v3"
+  size                = "Standard_B1s"
   admin_username      = "linuxusr"
   network_interface_ids = [
     azurerm_network_interface.snipee_interface.id,
@@ -107,8 +107,8 @@ resource "azurerm_linux_virtual_machine" "linux_vm" {
   }
   source_image_reference {
     publisher = "Canonical"
-    offer     = "UbuntuServer"
-    sku       = "18.04-LTS"
+    offer     = "0001-com-ubuntu-server-jammy"
+    sku       = "22_04-lts"
     version   = "latest"
   }
 
