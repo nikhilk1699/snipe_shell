@@ -73,6 +73,11 @@ Executes the terraform plan command to generate an execution plan. Specifies the
 Runs terraform apply -auto-approve to apply the changes to the infrastructure.
 The -auto-approve flag ensures that Terraform automatically approves and applies changes without manual confirmation.
 
+![11](https://github.com/nikhilk1699/snipe_shell/assets/109533285/95f7f96f-0e2e-4279-b03c-a6b7ed46e1a7)
+![Screenshot 2023-11-10 134047](https://github.com/nikhilk1699/snipe_shell/assets/109533285/cfae0883-1d3b-47a2-9706-0c6c419e1e31)
+![Screenshot 2023-11-10 134008](https://github.com/nikhilk1699/snipe_shell/assets/109533285/81abc109-9de7-490e-83a3-408c8849af19)
+![32](https://github.com/nikhilk1699/snipe_shell/assets/109533285/1d19ca5a-f662-4b83-b217-9cd804cdcde9)
+
 
 
 
